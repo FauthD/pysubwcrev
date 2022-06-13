@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # This file is part of pysubwcrev.
 #
@@ -65,7 +65,7 @@ def gather(workingCopyDir, opts):
 
                 if isSingleFile:
                     prop_list = client.proplist(stat.entry.url)
-                    if len(prop_list) > 0 and len(prop_list[0]) > 1 and prop_list[0][1].has_key("svn:needs-lock"):
+                    if len(prop_list) > 0 and len(prop_list[0]) > 1 and "svn:needs-lock" in prop_list[0][1]:
                         needslock = True
 
                     #TODO: I am not very sure about the different between entry revision and file revisions
@@ -78,8 +78,8 @@ def gather(workingCopyDir, opts):
                     entry_list = client.info2(stat.entry.url)
                     if len(entry_list) > 0 \
                             and len(entry_list[0]) > 1 \
-                            and entry_list[0][1].has_key("lock") \
-                            and entry_list[0][1].lock != None:                            
+                            and "lock" in entry_list[0][1] \
+                            and entry_list[0][1].lock != None:
                         islocked = True
                         lockeddata = entry_list[0][1].lock.creation_date
                         lockowner = entry_list[0][1].lock.owner
