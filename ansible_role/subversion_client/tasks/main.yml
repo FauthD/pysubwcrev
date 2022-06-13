@@ -1,0 +1,75 @@
+
+- name: Install subversion
+  apt:
+    name: subversion
+    update_cache: yes
+    state: latest
+  when: 
+    - ENABLE_BUILD_TOOLS
+  tags:
+    - svn
+
+- name: Copy /usr/local/bin files for subversion
+  copy:
+    src: "files/usr_local_bin/subwcrev"
+    dest: /usr/local/bin/
+    owner: root
+    group: root
+    mode: "0755"
+  when: 
+    - ENABLE_BUILD_TOOLS and not ENABLE_SVNWCREV_PYTHON
+  tags:
+    - svn
+
+- name: Create symbolic links for subwcrev
+  file:
+    src: /usr/local/bin/subwcrev
+    dest: "/usr/local/bin/{{ item }}"
+    owner: root
+    group: root
+    state: link
+  with_items:
+    - SubWCRev
+    - SubWCRev.exe
+    - svnwcrev
+  when: 
+    - ENABLE_BUILD_TOOLS and not ENABLE_SVNWCREV_PYTHON
+  tags:
+    - svn
+
+- name: Remove old subwcrev files and links
+  file:
+    path: "/usr/local/bin/{{ item }}"
+    state: absent
+  with_items:
+    - "{{ SVNWCREV_NAMES }}"
+  when: 
+    - ENABLE_BUILD_TOOLS and ENABLE_SVNWCREV_PYTHON
+  tags:
+    - svn
+
+- name: Copy pysubwcrev.py for subversion
+  copy:
+    src: "files/usr_local_bin/pysubwcrev.py"
+    dest: /usr/local/bin/
+    owner: root
+    group: root
+    mode: "0755"
+  when: 
+    - ENABLE_BUILD_TOOLS and ENABLE_SVNWCREV_PYTHON
+  tags:
+    - svn
+
+- name: Create symbolic links for pysubwcrev
+  file:
+    src: /usr/local/bin/pysubwcrev.py
+    dest: "/usr/local/bin/{{ item }}"
+    owner: root
+    group: root
+    state: link
+  with_items:
+    - "{{SVNWCREV_NAMES}}"
+  when: 
+    - ENABLE_BUILD_TOOLS and ENABLE_SVNWCREV_PYTHON
+  tags:
+    - svn

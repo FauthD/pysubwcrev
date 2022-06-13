@@ -1,0 +1,11 @@
+#ENABLE_SUBVERSION: false
+ENABLE_BUILD_TOOLS: false
+ENABLE_SVNWCREV_PYTHON: true
+
+SVNWCREV_NAMES:
+  - SubWCRev
+  - SubWcRev
+  - SubWCRev.exe
+  - SubWcRev.exe
+  - svnwcrev
+  - subwcrev
