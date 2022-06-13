@@ -22,3 +22,7 @@ For luck only 3 lines needed a change, so I forked and provide that here.
 You can also use pip to install the required library.
 
 - pip3 install pysvn
+
+## Ansible role to install pysvnwcrev
+Also uninstalls the good old C-Based svnwcrev and links.
+Various symlinks are created with different flavours of names.
