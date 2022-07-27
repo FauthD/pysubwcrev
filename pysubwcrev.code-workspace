@@ -9,7 +9,7 @@
 		"version": "0.2.0",
 		"configurations": [
 			{
-				"name": "Python: Current File",
+				"name": "Python: Current File test.tmpl",
 				"type": "python",
 				"request": "launch",
 				"program": "${file}",
@@ -18,11 +18,24 @@
 				"args": [
 					// Point this to a svn local copy of your choice
 					// in my case I use some 3D openscad project since it is small
-					"../../FaucetCover",
-					// "../../FaucetCover/svn_rev.tmpl",
-					// "../../FaucetCover/svn_rev.scad"
+					"../FaucetCover",
 					"test/file.tmpl",
 					"test/file.c"
+				]
+			},
+			{
+				"name": "Python: Current File svn_rev.tmpl",
+				"type": "python",
+				"request": "launch",
+				"program": "${file}",
+				"console": "integratedTerminal",
+				"justMyCode": true,
+				"args": [
+					// Point this to a svn local copy of your choice
+					// in my case I use some 3D openscad project since it is small
+					"../FaucetCover",
+					"../FaucetCover/svn_rev.tmpl",
+					"../FaucetCover/svn_rev.scad"
 				]
 	}
 }
