@@ -139,16 +139,17 @@ def strftime_process(inline,replacekey,date_value):
     else:
         return inline
 
-
-def FlushDestFile(temp: FileIO, fout: FileIO) -> bool:
-    temp.seek(0)
-    fout.seek(0)
-    same = temp.read() == fout.read()
+def FlushDestFile(tempFile: FileIO, outFile: str) -> bool:
+    same = False
+    with open(outFile, 'a+') as fout:
+        tempFile.seek(0)
+        fout.seek(0)
+        same = tempFile.read() == fout.read()
 
     if not same:
-        temp.seek(0)
-        fout.seek(0)
-        shutil.copyfileobj(temp, fout)
+        tempFile.seek(0)
+        with open(outFile, 'w+') as fout:
+            shutil.copyfileobj(tempFile, fout)
 
     return same
 
@@ -158,7 +159,7 @@ def process(inFile: str, outFile: str, info, opts):
         sys.exit(9)
         
     with open(inFile, 'r') as fin:
-        with tempfile.SpooledTemporaryFile(mode='r+') as temp:
+        with tempfile.SpooledTemporaryFile(mode='w+') as tempFile:
             for line in fin:
                 tmp = re.sub(r'\$WCDATE\$', str(info['wcdate']), line)
                 tmp = re.sub(r'\$WCNOW\$', str(info['wcnow']), tmp)
@@ -184,10 +185,9 @@ def process(inFile: str, outFile: str, info, opts):
                 tmp = strftime_process(tmp,"WCLOCKDATE",localtime(info['_wclockdate']))
                 tmp = strftime_process(tmp,"WCLOCKDATEUTC",gmtime(info['_wclockdate']))
 
-                temp.write(tmp)
+                tempFile.write(tmp)
 
-            with open(outFile, 'a+') as fout:
-                FlushDestFile(temp, fout)
+            FlushDestFile(tempFile, outFile)
 
 def doArgs(argstring):
     return [c for c in ['n', 'm', 'd', 'f', 'e'] if argstring.find(c) > 0]
