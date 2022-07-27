@@ -15,8 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with pysubwcrev.  If not, see <http://www.gnu.org/licenses/>.
 
+from io import FileIO
 from time import strftime, gmtime, localtime
 import os, pysvn, re, sys
+import tempfile
+import shutil
 
 def gather(workingCopyDir, opts):
 
@@ -136,45 +139,55 @@ def strftime_process(inline,replacekey,date_value):
     else:
         return inline
 
+def FlushDestFile(tempFile: FileIO, outFile: str) -> bool:
+    same = False
+    with open(outFile, 'a+') as fout:
+        tempFile.seek(0)
+        fout.seek(0)
+        same = tempFile.read() == fout.read()
 
+    if not same:
+        tempFile.seek(0)
+        with open(outFile, 'w+') as fout:
+            shutil.copyfileobj(tempFile, fout)
 
-def process(inFile, outFile, info, opts):
+    return same
 
+def process(inFile: str, outFile: str, info, opts):
     # if wanted, exit if the out file exists
     if 'd' in opts and os.path.exists(outFile):
         sys.exit(9)
+        
+    with open(inFile, 'r') as fin:
+        with tempfile.SpooledTemporaryFile(mode='w+') as tempFile:
+            for line in fin:
+                tmp = re.sub(r'\$WCDATE\$', str(info['wcdate']), line)
+                tmp = re.sub(r'\$WCNOW\$', str(info['wcnow']), tmp)
+                tmp = re.sub(r'\$WCDATEUTC\$', str(info['wcdateutc']), tmp)
+                tmp = re.sub(r'\$WCNOWUTC\$', str(info['wcnowutc']), tmp)
+                tmp = re.sub(r'\$WCRANGE\$', str(info['wcrange']), tmp)
+                tmp = re.sub(r'\$WCREV\$', str(info['wcrev']), tmp)
+                tmp = re.sub(r'\$WCURL\$', str(info['wcurl']), tmp)
+                tmp = re.sub(r'\$WCLOCKDATE\$', str(info['wclockdate']), tmp)
+                tmp = re.sub(r'\$WCLOCKDATEUTC\$', str(info['wclockdateutc']), tmp)
+                tmp = re.sub(r'\$WCLOCKOWNER\$', str(info['wclockowner']), tmp)
+                tmp = re.sub(r'\$WCLOCKCOMMENT\$', str(info['wclockcomment']), tmp)
 
-    fin = open(inFile, 'r')
-    fout = open(outFile, 'w')
-    for line in fin:
-        tmp = re.sub(r'\$WCDATE\$', str(info['wcdate']), line)
-        tmp = re.sub(r'\$WCNOW\$', str(info['wcnow']), tmp)
-        tmp = re.sub(r'\$WCDATEUTC\$', str(info['wcdateutc']), tmp)
-        tmp = re.sub(r'\$WCNOWUTC\$', str(info['wcnowutc']), tmp)
-        tmp = re.sub(r'\$WCRANGE\$', str(info['wcrange']), tmp)
-        tmp = re.sub(r'\$WCREV\$', str(info['wcrev']), tmp)
-        tmp = re.sub(r'\$WCURL\$', str(info['wcurl']), tmp)        
-        tmp = re.sub(r'\$WCLOCKDATE\$', str(info['wclockdate']), tmp)
-        tmp = re.sub(r'\$WCLOCKDATEUTC\$', str(info['wclockdateutc']), tmp) 
-        tmp = re.sub(r'\$WCLOCKOWNER\$', str(info['wclockowner']), tmp)
-        tmp = re.sub(r'\$WCLOCKCOMMENT\$', str(info['wclockcomment']), tmp)
+                tmp = boolean_process(tmp,"WCMODS",info['wcmods'])
+                tmp = boolean_process(tmp,"WCMIXED",info['wcmixed'])
+                tmp = boolean_process(tmp,"WCINSVN",info['wcinsvn'])
+                tmp = boolean_process(tmp,"WCNEEDSLOCK",info['wcneedslock'])
+                tmp = boolean_process(tmp,"WCISLOCKED",info['wcislocked'])
 
-        tmp = boolean_process(tmp,"WCMODS",info['wcmods'])
-        tmp = boolean_process(tmp,"WCMIXED",info['wcmixed'])
-        tmp = boolean_process(tmp,"WCINSVN",info['wcinsvn'])
-        tmp = boolean_process(tmp,"WCNEEDSLOCK",info['wcneedslock'])
-        tmp = boolean_process(tmp,"WCISLOCKED",info['wcislocked'])
+                tmp = strftime_process(tmp,"WCDATE",localtime(info['_wcmaxdate']))
+                tmp = strftime_process(tmp,"WCDATEUTC",gmtime(info['_wcmaxdate']))
 
-        tmp = strftime_process(tmp,"WCDATE",localtime(info['_wcmaxdate']))
-        tmp = strftime_process(tmp,"WCDATEUTC",gmtime(info['_wcmaxdate']))
+                tmp = strftime_process(tmp,"WCLOCKDATE",localtime(info['_wclockdate']))
+                tmp = strftime_process(tmp,"WCLOCKDATEUTC",gmtime(info['_wclockdate']))
 
-        tmp = strftime_process(tmp,"WCLOCKDATE",localtime(info['_wclockdate']))
-        tmp = strftime_process(tmp,"WCLOCKDATEUTC",gmtime(info['_wclockdate']))
+                tempFile.write(tmp)
 
-        fout.write(tmp)
-
-    fin.close()
-    fout.close()
+            FlushDestFile(tempFile, outFile)
 
 def doArgs(argstring):
     return [c for c in ['n', 'm', 'd', 'f', 'e'] if argstring.find(c) > 0]
