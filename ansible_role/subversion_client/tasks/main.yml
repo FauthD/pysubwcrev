@@ -1,13 +1,17 @@
 
 - name: Install subversion
   apt:
-    name: subversion
+    pkg: "{{ item }}"
     update_cache: yes
     state: latest
-  when: 
+  with_items: 
+  - subversion
+  - python3-svn
+  when:
     - ENABLE_BUILD_TOOLS
   tags:
     - svn
+    - buildtools
 
 - name: Copy /usr/local/bin files for subversion
   copy:
@@ -20,6 +24,7 @@
     - ENABLE_BUILD_TOOLS and not ENABLE_SVNWCREV_PYTHON
   tags:
     - svn
+    - buildtools
 
 - name: Create symbolic links for subwcrev
   file:
@@ -36,6 +41,7 @@
     - ENABLE_BUILD_TOOLS and not ENABLE_SVNWCREV_PYTHON
   tags:
     - svn
+    - buildtools
 
 - name: Remove old subwcrev files and links
   file:
@@ -47,6 +53,7 @@
     - ENABLE_BUILD_TOOLS and ENABLE_SVNWCREV_PYTHON
   tags:
     - svn
+    - buildtools
 
 - name: Copy pysubwcrev.py for subversion
   copy:
@@ -59,6 +66,7 @@
     - ENABLE_BUILD_TOOLS and ENABLE_SVNWCREV_PYTHON
   tags:
     - svn
+    - buildtools
 
 - name: Create symbolic links for pysubwcrev
   file:
@@ -73,3 +81,4 @@
     - ENABLE_BUILD_TOOLS and ENABLE_SVNWCREV_PYTHON
   tags:
     - svn
+    - buildtools
