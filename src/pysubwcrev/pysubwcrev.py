@@ -122,20 +122,20 @@ def gather(workingCopyDir, opts):
     return results
 
 def boolean_process(inline,replacekey,boolean_value):
-    match = re.search(r'\$'+replacekey+'\?(.*):(.*)\$', inline)
+    match = re.search(r'\$'+replacekey+r'\?(.*):(.*)\$', inline)
     if match:
         idx = 1
         if not boolean_value:
             idx = 2
-        return re.sub(r'\$'+replacekey+'.*\$', match.group(idx), inline)
+        return re.sub(r'\$'+replacekey+r'.*\$', match.group(idx), inline)
     else:
         return inline
 
 def strftime_process(inline,replacekey,date_value):
-    match = re.search(r'\$'+replacekey+'=(.*)\$', inline)
+    match = re.search(r'\$'+replacekey+r'=(.*)\$', inline)
     if match:        
         datestr = strftime(match.group(1), date_value)
-        return re.sub(r'\$'+replacekey+'=.*\$', datestr, inline)
+        return re.sub(r'\$'+replacekey+r'=.*\$', datestr, inline)
     else:
         return inline
 
