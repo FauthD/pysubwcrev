@@ -1,5 +1,7 @@
-[TortoiseSVN's](http://tortoisesvn.net) [SubWCRev](http://tortoisesvn.net/docs/release/TortoiseSVN_en/tsvn-subwcrev.html) app is windows-only. 
-For those developing cross-platform apps, it's nice to have a command-line compatible alternative to swap into the build process. 
+# pysvnwcrev
+
+[TortoiseSVN's](http://tortoisesvn.net) [SubWCRev](http://tortoisesvn.net/docs/release/TortoiseSVN_en/tsvn-subwcrev.html) app is windows-only.
+For those developing cross-platform apps, it's nice to have a command-line compatible alternative to swap into the build process.
 Only dependencies are Python and pysvn.
 
 ## Rational
@@ -10,14 +12,16 @@ Since I still had the   sources, I published them on git for reference https://g
 While looking for a solution to my UTF-8 issues, I found https://github.com/nickveys/pysubwcrev , but that was written in Python2.
 For luck only 3 lines needed a change, so I forked and provide that here.
 
-## Build on Ubuntu (20.04)
+## Build on Ubuntu (24.04)
 
-- sudo apt install python3-svn
+- sudo apt install python3-svn subversion
 - sudo cp src/pysubwcrev.py /usr/local/bin
+
 ### optional create symlinks for the old names
 
 - sudo ln -s /usr/local/bin/pysubwcrev.py /usr/local/bin/subwcrev
 - sudo ln -s /usr/local/bin/pysubwcrev.py /usr/local/bin/SubWcRev
+
 ## Build general
 You can also use pip to install the required library.
 
